@@ -6,7 +6,7 @@
       <stop offset="0%" stop-color="#FF7A59"/>
       <stop offset="100%" stop-color="#FF3D71"/>
     </linearGradient>
-    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="trail" x1="1" y1="1" x2="0" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0.95"/>
     </linearGradient>
@@ -25,11 +25,11 @@
   <!-- F middle stroke -->
   <rect x="61" y="78" width="34" height="9" rx="4" fill="#ffffff"/>
 
-  <!-- shot trajectory (fading dashes) -->
-  <path d="M150 150 Q146 55 102 40" fill="none" stroke="url(#trail)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+  <!-- shot trajectory: solid near the ball, fading toward the start (bottom) -->
+  <path d="M150 150 Q154 60 124 30" fill="none" stroke="url(#trail)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
 
   <!-- chat-bubble ball -->
-  <g transform="translate(122,16)">
+  <g transform="translate(112,8)">
     <circle cx="13" cy="13" r="13" fill="#ffffff"/>
     <path d="M0 13 H26 M13 0 V26 M3 4 Q13 13 3 22 M23 4 Q13 13 23 22" stroke="#FF5A6E" stroke-width="1.2" fill="none"/>
   </g>

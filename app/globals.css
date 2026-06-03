@@ -104,6 +104,78 @@ button {
   color: var(--brand);
 }
 
+/* billing trigger in sidebar */
+.billing-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 14px 16px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+.billing-btn:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+/* billing modal */
+.modal.billing {
+  gap: 0;
+}
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 16px;
+}
+.price-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.price-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.price-list li svg {
+  color: var(--brand);
+}
+.price-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+.price-val {
+  font-size: 16px;
+  font-weight: 700;
+}
+.price-val i {
+  font-size: 11px;
+  font-weight: 500;
+  font-style: normal;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.modal-foot {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .retention {
   margin: 0 14px 12px;
   padding: 8px 12px;
@@ -135,6 +207,33 @@ button {
   overflow-y: auto;
   flex: 1;
   padding: 0 8px 8px;
+}
+
+.group {
+  margin-bottom: 6px;
+}
+.group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.group-desc {
+  padding: 0 10px 8px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.avatar.session {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--brand);
 }
 
 .row {
@@ -346,6 +445,56 @@ button {
   border-radius: 20px;
   padding: 28px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* full-cover ad over the call modal */
+.ad {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(135deg, #20202a, #14141a);
+  display: grid;
+  place-items: center;
+}
+.ad-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--line);
+}
+.ad-close:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+.ad-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.ad-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ad-cta {
+  padding: 11px 22px;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+}
+.ad-cta:hover {
+  opacity: 0.9;
 }
 .call .stage {
   height: 320px;

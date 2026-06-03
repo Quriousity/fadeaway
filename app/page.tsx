@@ -2,7 +2,20 @@
 
 import { useState } from "react";
 import { conversations as seed, type Message } from "./data";
-import { Phone, Video, Screen, Remote, Mic, Hang } from "./icons";
+import {
+  Phone,
+  Video,
+  ScreenShare,
+  MousePointerClick,
+  Mic,
+  PhoneOff,
+  User,
+  Plus,
+  AtSign,
+  Hash,
+  Receipt,
+  X,
+} from "lucide-react";
 
 type CallKind = "통화" | "영상통화" | "화면 공유" | "원격 제어";
 
@@ -13,6 +26,13 @@ export default function Home() {
   const [call, setCall] = useState<CallKind | null>(null);
   const [muted, setMuted] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [adClosed, setAdClosed] = useState(false);
+
+  const openCall = (kind: CallKind) => {
+    setAdClosed(false);
+    setCall(kind);
+  };
 
   const active = chats.find((c) => c.id === activeId)!;
 
@@ -44,7 +64,7 @@ export default function Home() {
           <img src="/logo.svg" alt="Fadeaway" />
           <h1>Fadeaway</h1>
           <button className="new-btn" title="새 대화" onClick={() => setNewOpen(true)}>
-            +
+            <Plus size={20} />
           </button>
         </div>
 
@@ -57,49 +77,100 @@ export default function Home() {
         </div>
 
         <div className="list">
-          {chats.map((c) => (
-            <button
-              key={c.id}
-              className={"row" + (c.id === activeId ? " active" : "")}
-              onClick={() => setActiveId(c.id)}
-            >
-              <div className="avatar">{c.initials}</div>
-              <div className="row-main">
-                <div className="row-top">
-                  <span className="row-name">{c.name}</span>
-                  <span className="row-time">{c.time}</span>
-                </div>
-                <div className="row-msg">
-                  <span className={c.id === "c3" ? "expiring" : ""}>
-                    {c.preview}
-                  </span>
-                </div>
-              </div>
-            </button>
-          ))}
+          <div className="group">
+            <div className="group-head">
+              <AtSign size={13} />
+              <span>다이렉트</span>
+            </div>
+            <p className="group-desc">
+              상대의 아이디로 요청을 보내고, 양쪽이 수락하면 연결돼요. 자주
+              연락하는 상대를 위한 지속 연결입니다.
+            </p>
+            {chats
+              .filter((c) => c.kind === "direct")
+              .map((c) => (
+                <button
+                  key={c.id}
+                  className={"row" + (c.id === activeId ? " active" : "")}
+                  onClick={() => setActiveId(c.id)}
+                >
+                  <div className="avatar">
+                    <User size={22} />
+                  </div>
+                  <div className="row-main">
+                    <div className="row-top">
+                      <span className="row-name">{c.name}</span>
+                      <span className="row-time">{c.time}</span>
+                    </div>
+                    <div className="row-msg">{c.preview}</div>
+                  </div>
+                </button>
+              ))}
+          </div>
+
+          <div className="group">
+            <div className="group-head">
+              <Hash size={13} />
+              <span>세션</span>
+            </div>
+            <p className="group-desc">
+              세션ID만 있으면 누구나 참여하는 임시 방이에요. 끝나면 휘발됩니다.
+              통화·화면공유·원격제어가 열리는 곳. (원격제어는 입장과 별개로 매번
+              수락 필요)
+            </p>
+            {chats
+              .filter((c) => c.kind === "session")
+              .map((c) => (
+                <button
+                  key={c.id}
+                  className={"row" + (c.id === activeId ? " active" : "")}
+                  onClick={() => setActiveId(c.id)}
+                >
+                  <div className="avatar session">
+                    <Hash size={20} />
+                  </div>
+                  <div className="row-main">
+                    <div className="row-top">
+                      <span className="row-name">{c.name}</span>
+                      <span className="row-time">{c.time}</span>
+                    </div>
+                    <div className="row-msg">
+                      <span className="expiring">{c.preview}</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+          </div>
         </div>
+
+        <button className="billing-btn" onClick={() => setBillingOpen(true)}>
+          <Receipt size={16} />
+          <span>과금 체계</span>
+        </button>
       </aside>
 
       {/* Chat */}
       <main className="chat">
         <header className="chat-header">
-          <div className="avatar">{active.initials}</div>
+          <div className="avatar">
+            <User size={22} />
+          </div>
           <div className="who">
             <div className="name">{active.name}</div>
             <div className="status">{active.status}</div>
           </div>
           <div className="actions">
-            <button className="action" title="통화" onClick={() => setCall("통화")}>
-              <Phone />
+            <button className="action" title="통화" onClick={() => openCall("통화")}>
+              <Phone size={20} />
             </button>
-            <button className="action" title="영상통화" onClick={() => setCall("영상통화")}>
-              <Video />
+            <button className="action" title="영상통화" onClick={() => openCall("영상통화")}>
+              <Video size={20} />
             </button>
-            <button className="action" title="화면 공유" onClick={() => setCall("화면 공유")}>
-              <Screen />
+            <button className="action" title="화면 공유" onClick={() => openCall("화면 공유")}>
+              <ScreenShare size={20} />
             </button>
-            <button className="action" title="원격 제어" onClick={() => setCall("원격 제어")}>
-              <Remote />
+            <button className="action" title="원격 제어" onClick={() => openCall("원격 제어")}>
+              <MousePointerClick size={20} />
             </button>
           </div>
         </header>
@@ -142,18 +213,72 @@ export default function Home() {
         </div>
       )}
 
+      {/* Billing modal */}
+      {billingOpen && (
+        <div className="overlay" onClick={() => setBillingOpen(false)}>
+          <div className="modal billing" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">과금 체계</h3>
+            <p className="modal-sub">모든 기능 10분 무료 · 이후 분당 과금</p>
+            <ul className="price-list">
+              <li>
+                <Phone size={18} />
+                <span className="price-name">통화</span>
+                <span className="price-val">1원<i>/분</i></span>
+              </li>
+              <li>
+                <Video size={18} />
+                <span className="price-name">영상통화</span>
+                <span className="price-val">10원<i>/분·인</i></span>
+              </li>
+              <li>
+                <ScreenShare size={18} />
+                <span className="price-name">화면 공유</span>
+                <span className="price-val">10원<i>/분·인</i></span>
+              </li>
+              <li>
+                <MousePointerClick size={18} />
+                <span className="price-name">원격 제어</span>
+                <span className="price-val">15원<i>/분·인</i></span>
+              </li>
+            </ul>
+            <p className="modal-foot">· /분·인 = 분당 이용자 1인 기준</p>
+          </div>
+        </div>
+      )}
+
       {/* Call / share / remote overlay */}
       {call && (
         <div className="overlay" onClick={() => setCall(null)}>
           <div className="call" onClick={(e) => e.stopPropagation()}>
+            {!adClosed && (
+              <div className="ad">
+                <button
+                  className="ad-close"
+                  title="닫기"
+                  onClick={() => setAdClosed(true)}
+                >
+                  <X size={18} />
+                </button>
+                <div className="ad-body">
+                  <p className="ad-text">여기에 광고가 표시됩니다.</p>
+                  <button className="ad-cta">광고 문의</button>
+                </div>
+              </div>
+            )}
             <div className="stage">
               <span className="kind">{call}</span>
 
-              {call === "통화" && <div className="avatar big-avatar">{active.initials}</div>}
+              {call === "통화" && (
+                <div className="avatar big-avatar">
+                  <User size={44} />
+                </div>
+              )}
 
               {call === "영상통화" && (
                 <>
-                  <div className="avatar big-avatar">{active.initials}</div>
+                  <div className="avatar big-avatar">
+                    <User size={44} />
+                  </div>
                   <div className="self-cam">내 화면</div>
                 </>
               )}
@@ -180,10 +305,10 @@ export default function Home() {
                 onClick={() => setMuted((m) => !m)}
                 title="음소거"
               >
-                <Mic />
+                <Mic size={22} />
               </button>
               <button className="cc end" onClick={() => setCall(null)} title="종료">
-                <Hang />
+                <PhoneOff size={22} />
               </button>
             </div>
           </div>
