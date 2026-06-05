@@ -70,13 +70,13 @@ button {
   border-radius: 9px;
   font-size: 22px;
   line-height: 1;
-  color: #fff;
-  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  color: var(--brand);
+  background: none;
   display: grid;
   place-items: center;
 }
 .new-btn:hover {
-  opacity: 0.9;
+  background: var(--panel-2);
 }
 
 .modal {
@@ -90,6 +90,9 @@ button {
   gap: 12px;
 }
 .modal-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   padding: 16px 18px;
   font-size: 15px;
   font-weight: 600;
@@ -99,9 +102,83 @@ button {
   border: 1px solid var(--line);
   border-radius: 12px;
 }
-.modal-btn:hover {
+.modal-btn:hover:not(.disabled) {
   border-color: var(--brand);
   color: var(--brand);
+}
+.modal-btn:hover:not(.disabled) .mb-icon {
+  color: var(--brand);
+  border-color: var(--brand);
+}
+.modal-btn.disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.mb-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.mb-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.mb-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.mb-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.modal-btn.disabled:hover .mb-desc,
+.modal-btn .mb-desc {
+  color: var(--muted);
+}
+/* dummy chip inside modal title — no auto margin here */
+.mb-title .chip-dummy {
+  margin-right: 0;
+}
+
+/* join by session id */
+.join-row {
+  display: flex;
+  gap: 8px;
+}
+.join-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+.join-input:focus {
+  border-color: var(--brand);
+}
+.join-btn {
+  flex-shrink: 0;
+  padding: 0 18px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  border-radius: 12px;
+}
+.join-btn:hover {
+  opacity: 0.92;
 }
 
 /* billing trigger in sidebar */
@@ -277,6 +354,20 @@ button {
 .row-name {
   font-weight: 600;
   font-size: 14px;
+}
+.chip-dummy {
+  margin-right: auto;
+  align-self: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+  line-height: 1.4;
 }
 .row-time {
   font-size: 11px;
@@ -579,7 +670,752 @@ button {
   background: var(--brand-2);
   border-color: var(--brand-2);
 }
-.cc.active {
+/* 기능 ON: 보더에 색 / OFF: 아이콘에만 색 */
+.cc.on {
+  border-color: var(--brand);
+}
+.cc.off {
+  color: var(--brand);
+}
+
+/* ---------- Auth ---------- */
+.auth-loading {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  color: var(--muted);
+}
+.auth-screen {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  background: radial-gradient(80% 60% at 50% 0%, #1a1520 0%, var(--bg) 70%);
+}
+.auth-card {
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+.auth-brand img {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+.auth-brand h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+.auth-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  margin: 8px 0 22px;
+}
+.auth-input {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 15px;
+  margin-bottom: 10px;
+  outline: none;
+}
+.auth-input:focus {
+  border-color: var(--brand);
+}
+.auth-primary {
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  color: #fff;
+  font-weight: 600;
+  border-radius: 11px;
+  padding: 12px;
+  margin-top: 4px;
+}
+.auth-primary:disabled {
+  opacity: 0.6;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.auth-google {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px;
+  font-weight: 500;
+}
+.auth-google:disabled {
+  opacity: 0.6;
+}
+.auth-msg {
+  color: var(--brand);
+  font-size: 13px;
+  text-align: center;
+  margin-top: 14px;
+}
+.auth-toggle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 18px;
+}
+.auth-toggle:hover {
+  color: var(--text);
+}
+
+/* ---------- Account / logout ---------- */
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 4px 10px 12px;
+  border-top: 1px solid var(--line);
+}
+.account-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.account-info {
+  flex: 1;
+  min-width: 0;
+}
+.account-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.account-email {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.logout-btn {
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.logout-btn:hover {
+  color: var(--brand);
+  background: var(--panel-2);
+}
+
+/* ---------- Signaling test (1단계) ---------- */
+.action.ping:hover {
+  color: var(--brand);
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+/* ---------- Session ID bar ---------- */
+.session-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.session-bar-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.session-bar-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+.session-bar-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+.session-bar-copy:hover {
+  border-color: var(--brand);
+}
+.session-bar-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* ---------- Incoming call (수신 화면) ---------- */
+.incoming {
+  width: min(360px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 40px 28px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ring-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 22px;
+}
+.ring-avatar .ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+  opacity: 0;
+  animation: ring-pulse 1.8s ease-out infinite;
+}
+.ring-avatar .ring.r2 {
+  animation-delay: 0.9s;
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+.ring-avatar .big-avatar {
+  width: 88px;
+  height: 88px;
+  position: relative;
+}
+.incoming-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+.incoming-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.incoming-actions {
+  display: flex;
+  gap: 56px;
+  margin-top: 30px;
+}
+.ic {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.ic.accept {
+  background: #2ecc71;
+  animation: accept-bounce 1.4s ease-in-out infinite;
+}
+.ic.accept:hover {
+  background: #29b765;
+}
+.ic.decline {
+  background: var(--brand-2);
+}
+.ic.decline:hover {
+  background: #e23161;
+}
+@keyframes accept-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* ---------- Voice room (mesh) ---------- */
+.call.room .kind {
+  position: static;
+  display: inline-block;
+  margin: 6px 0 20px;
+}
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 14px 0 6px;
+}
+.part {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.part .avatar {
+  width: 40px;
+  height: 40px;
+}
+.part-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.me-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--brand);
+  background: rgba(255, 90, 110, 0.12);
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin-left: 4px;
+}
+.part-state {
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.room-count {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ---------- Action dummy badge ---------- */
+.dummy-action {
+  position: relative;
+}
+.action-dummy {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+/* ---------- Video grid (통화방) ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin: 14px 0 18px;
+}
+.tile {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.tile-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.tile-video.hidden {
+  display: none;
+}
+.tile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.tile-label {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 16px);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 7px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile-label .me-tag {
+  background: rgba(255, 90, 110, 0.25);
+}
+
+/* ---------- Room help (? button + modal) ---------- */
+.room-help {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.room-help:hover {
   color: var(--brand);
   border-color: var(--brand);
+}
+.modal.help {
+  gap: 0;
+}
+.help-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.help-item {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.help-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.help-name {
+  font-size: 14px;
+  font-weight: 700;
+  width: 60px;
+  flex-shrink: 0;
+}
+.help-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.help-icon.on {
+  border-color: var(--brand);
+}
+.help-icon.off {
+  color: var(--brand);
+}
+.help-tag {
+  font-size: 12px;
+  color: var(--muted);
+}
+.help-arrow {
+  color: var(--muted);
+  font-size: 13px;
+}
+.help-desc {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 도움말 모달은 통화방 오버레이 위로 */
+.overlay-top {
+  z-index: 60;
+}
+
+/* ---------- Back button (mobile only) ---------- */
+.back-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  place-items: center;
+  color: var(--text);
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+.back-btn:hover {
+  background: var(--panel-2);
+}
+
+/* ---------- Mobile: master-detail (≤1100px) ---------- */
+@media (max-width: 1100px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  /* 기본: 사이드바 풀스크린, 채팅 숨김 */
+  .sidebar {
+    border-right: none;
+  }
+  .chat {
+    display: none;
+  }
+  /* 항목 선택 시: 채팅 풀스크린, 사이드바 숨김 */
+  .app.mobile-chat .sidebar {
+    display: none;
+  }
+  .app.mobile-chat .chat {
+    display: flex;
+  }
+  .back-btn {
+    display: grid;
+  }
+}
+
+/* ---------- Account clickable + profile page ---------- */
+.account-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 4px;
+  margin: -4px;
+  border-radius: 10px;
+}
+.account-main:hover {
+  background: var(--panel-2);
+}
+.account-main.active {
+  background: var(--panel-2);
+}
+.profile-body {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+.profile-placeholder {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- Profile form ---------- */
+.profile-body {
+  flex: 1;
+  display: block;
+  overflow-y: auto;
+  padding: 28px;
+}
+.profile-form {
+  max-width: 420px;
+}
+.profile-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.nick-row {
+  display: flex;
+  gap: 8px;
+}
+.nick-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+.nick-input:focus {
+  border-color: var(--brand);
+}
+.nick-save {
+  flex-shrink: 0;
+  padding: 0 20px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  border-radius: 11px;
+}
+.nick-save:disabled {
+  opacity: 0.6;
+}
+.profile-note {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.profile-note b {
+  color: var(--text);
+}
+.nick-msg {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--brand);
+}
+
+/* nickname live status */
+.nick-status {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.nick-status.ok {
+  color: #2ecc71;
+}
+.nick-status.bad {
+  color: var(--brand);
+}
+
+/* nickname locked (변경 불가) */
+.nick-locked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+}
+.nick-locked-value {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+}
+.nick-locked svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ---------- Empty chat state ---------- */
+.empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+}
+.empty-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.empty-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 320px;
+}
+.empty-sub b {
+  color: var(--brand);
+}
+
+/* session rename pencil */
+.name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.rename-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  color: var(--muted);
+}
+.rename-btn:hover {
+  color: var(--brand);
+  background: var(--panel-2);
 }
