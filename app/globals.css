@@ -762,11 +762,18 @@ button {
   background: var(--line);
 }
 .auth-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   background: var(--panel-2);
   border: 1px solid var(--line);
   border-radius: 11px;
   padding: 12px;
   font-weight: 500;
+}
+.auth-google-icon {
+  flex-shrink: 0;
 }
 .auth-google:disabled {
   opacity: 0.6;
