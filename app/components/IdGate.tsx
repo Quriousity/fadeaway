@@ -9,6 +9,7 @@ import {
 } from "react";
 import { getMyProfile, setNickname, isNicknameTaken } from "../lib/profile";
 import { useAuth } from "./AuthGate";
+import { supabase } from "../lib/supabase";
 
 /**
  * 아이디 게이트 — 로그인 다음 단계.
@@ -36,10 +37,22 @@ export default function IdGate({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMyProfile().then((p) => {
-      setMyId(p?.nickname ?? null);
-      setLoading(false);
-    });
+    let alive = true;
+    // 실패해도 반드시 로딩을 푼다 — 안 그러면 화면이 "불러오는 중…"에서 영영 멈춘다
+    getMyProfile()
+      .then((p) => {
+        if (alive) setMyId(p?.nickname ?? null);
+      })
+      .catch((e) => {
+        console.error("[id] 프로필 조회 실패", e);
+        if (alive) setMyId(null);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const changeId = async (next: string) => {
@@ -135,9 +148,16 @@ export function IdSetup({
           {saving ? "저장 중…" : current ? "변경하기" : "시작하기"}
         </button>
 
-        {onCancel && (
+        {onCancel ? (
           <button className="auth-toggle" onClick={onCancel}>
             취소
+          </button>
+        ) : (
+          <button
+            className="auth-toggle"
+            onClick={() => supabase.auth.signOut()}
+          >
+            다른 계정으로 로그인
           </button>
         )}
 

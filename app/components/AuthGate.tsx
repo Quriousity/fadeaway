@@ -29,17 +29,43 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+
+    let alive = true;
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const stored = data.session;
+
+        // 저장된 세션이 아직 쓸 수 있는지 확인한다.
+        // getSession() 은 localStorage 값을 검증 없이 돌려준다. 그래서 Supabase
+        // 프로젝트를 갈아끼우면 옛 토큰이 계속 '로그인된 세션'처럼 보이고,
+        // 이후 모든 요청이 조용히 실패해 화면이 로딩에서 멈춘다.
+        if (stored) {
+          const { error } = await supabase.auth.getUser();
+          if (error) {
+            await supabase.auth.signOut();
+            if (alive) setSession(null);
+            return;
+          }
+        }
+        if (alive) setSession(stored);
+      } catch (e) {
+        console.error("[auth] 세션 확인 실패", e);
+        if (alive) setSession(null);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       // private Realtime 채널은 JWT 로 인가된다 → 토큰이 바뀌면 실시간 쪽도 갱신해야
       // 만료 후 재구독이 인가 실패로 떨어지지 않는다.
       supabase.realtime.setAuth(s?.access_token ?? null);
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
 
