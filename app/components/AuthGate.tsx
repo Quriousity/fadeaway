@@ -142,10 +142,6 @@ function LoginScreen() {
           <img src="/logo.svg" alt="Fadeaway" />
           <h1>Fadeaway</h1>
         </div>
-        <p className="auth-sub">
-          {mode === "signin" ? "로그인하고 연결하세요" : "계정을 만드세요"}
-        </p>
-
         <input
           className="auth-input"
           type="email"
