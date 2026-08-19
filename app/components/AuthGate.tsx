@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 type AuthCtx = { user: User; signOut: () => Promise<void> };
 const Ctx = createContext<AuthCtx | null>(null);
@@ -25,6 +25,10 @@ export default function AuthGate({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
@@ -34,6 +38,12 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+
+
+  if (!isSupabaseConfigured) {
+    return <ConfigMissing />;
+  }
 
   if (loading) {
     return <div className="auth-loading">불러오는 중…</div>;
@@ -156,6 +166,27 @@ function LoginScreen() {
             ? "계정이 없나요? 가입하기"
             : "이미 계정이 있나요? 로그인"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+/** 환경변수 누락 — 로그인 화면 대신 무엇이 빠졌는지 알려준다 */
+function ConfigMissing() {
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <img src="/logo.svg" alt="Fadeaway" />
+          <h1>Fadeaway</h1>
+        </div>
+        <p className="auth-sub">환경변수가 설정되지 않았어요</p>
+        <p className="auth-msg">
+          <code>NEXT_PUBLIC_SUPABASE_URL</code> 과{" "}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> 를 설정한 뒤 다시
+          빌드해주세요. 이 값들은 빌드 시점에 번들에 포함되므로, 나중에
+          추가했다면 재배포가 필요합니다.
+        </p>
       </div>
     </div>
   );
