@@ -10,6 +10,7 @@ import {
 import { getMyProfile, setNickname, isNicknameTaken } from "../lib/profile";
 import { useAuth } from "./AuthGate";
 import { supabase } from "../lib/supabase";
+import { isSubmitEnter } from "../lib/keys";
 
 /**
  * 아이디 게이트 — 로그인 다음 단계.
@@ -126,7 +127,7 @@ export function IdSetup({
           className="auth-input"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && save()}
+          onKeyDown={(e) => isSubmitEnter(e) && save()}
           placeholder="2~20자 · 한글/영문/숫자/_/."
           maxLength={20}
           autoFocus

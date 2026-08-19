@@ -36,6 +36,7 @@ import MediaTile from "./components/MediaTile";
 import Composer from "./components/Composer";
 import Attachment from "./components/Attachment";
 import ThemeToggle from "./components/ThemeToggle";
+import { isSubmitEnter } from "./lib/keys";
 
 /** DB 메시지 → 화면용 Message */
 function toMessage(m: ChatMsg, selfId: string): Message {
@@ -435,7 +436,7 @@ export default function Home() {
           <input
             value={friendInput}
             onChange={(e) => setFriendInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addFriend()}
+            onKeyDown={(e) => isSubmitEnter(e) && addFriend()}
             placeholder="친구 아이디 입력"
           />
           <button onClick={addFriend} disabled={adding || !friendInput.trim()}>

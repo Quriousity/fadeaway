@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { isSubmitEnter } from "../lib/keys";
 
 type AuthCtx = { user: User; signOut: () => Promise<void> };
 const Ctx = createContext<AuthCtx | null>(null);
@@ -156,7 +157,7 @@ function LoginScreen() {
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
+          onKeyDown={(e) => isSubmitEnter(e) && submit()}
           autoComplete={mode === "signin" ? "current-password" : "new-password"}
         />
 

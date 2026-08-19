@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Paperclip, Mic, Square } from "lucide-react";
 import { formatDuration } from "../lib/attachments";
+import { isSubmitEnter } from "../lib/keys";
 
 /**
  * 입력창 — 텍스트 + 이미지 + 파일 + 음성 메모.
@@ -194,7 +195,7 @@ export default function Composer({
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
+          onKeyDown={(e) => isSubmitEnter(e) && send()}
           onPaste={onPaste}
           placeholder={placeholder}
         />
