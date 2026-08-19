@@ -87,25 +87,66 @@ Edge Function은 그 키를 **플랫폼이 자동 주입**한다 — 우리가 �
 ### (1) 함수 배포
 
 대시보드 → **Edge Functions → Deploy a new function**
-- 이름: `purge`
+- **생성 화면의 이름 입력칸에 `purge` 를 먼저 입력할 것.**
+  기본값(`dynamic-handler`)으로 만들면 URL이 `/functions/v1/dynamic-handler` 가 된다.
+  표시 이름은 나중에 바꿀 수 있지만 **URL(slug)은 변경 불가**다
 - `supabase/functions/purge/index.ts` 내용 붙여넣고 Deploy
+- 목록의 URL이 `.../functions/v1/purge` 인지 확인
 
 CLI를 쓴다면: `supabase functions deploy purge`
 
-### (2) 스케줄 등록
+### (2) Verify JWT 끄기
 
-대시보드 → **Integrations → Cron → Create job**
-- Type: **Supabase Edge Function** / Function: `purge`
-- Schedule: 하루 1회 (예: `23 3 * * *`)
+Edge Functions → `purge` → Settings → **Verify JWT** 토글 OFF
 
-URL·헤더는 대시보드가 알아서 채운다. SQL로 하고 싶으면 `schema.sql` §7-b의 주석 블록 참조.
+이 함수는 14일 지난 것만 지운다. 이미 아무도 못 읽는 데이터라 누가 호출해도 피해가 없어서,
+인증을 붙일 이유가 약하다. 대신 키 관리가 통째로 사라져 나중에 키를 교체해도 안 깨진다.
 
-### (3) 확인
+> 트레이드오프: URL을 아는 사람이 반복 호출해 Edge Function 무료 호출량을 축낼 수 있다.
+> 데이터 피해는 없다. 신경 쓰이면 Verify JWT를 켜고 아래 헤더에
+> `"Authorization":"Bearer <legacy anon JWT>"` 를 추가하면 된다.
+> 이때 반드시 **Legacy API keys** 의 `eyJ...` JWT여야 한다 — `sb_publishable_...` 는 JWT가
+> 아니라서 `INVALID_JWT_FORMAT` 으로 거절된다.
 
-Edge Functions → `purge` → Invoke 로 한 번 수동 실행:
-```json
-{"ok":true,"cutoff":"...","filesRemoved":0,"messagesDeleted":0}
+### (3) 스케줄 등록
+
+SQL Editor에서 (`<PROJECT_REF>`만 채울 것):
+
+```sql
+select cron.schedule(
+  'fadeaway-purge-attachments',
+  '23 3 * * *',
+  $cmd$
+    select net.http_post(
+      url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/purge',
+      headers := '{"Content-Type":"application/json"}'::jsonb
+    );
+  $cmd$
+);
 ```
+
+같은 이름으로 다시 실행하면 덮어쓴다(중복 등록 안 됨).
+
+> 대시보드 Integrations → Cron 으로 만들어도 되지만, 거기서 만든 job은
+> `headers:='{}'` 로 비어서 나온다. Verify JWT가 켜져 있으면 401이 난다.
+
+### (4) 확인
+
+```sql
+select net.http_post(
+  url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/purge',
+  headers := '{"Content-Type":"application/json"}'::jsonb
+);
+-- 몇 초 뒤
+select status_code, content from net._http_response order by id desc limit 1;
+```
+
+| 결과 | 의미 |
+|---|---|
+| `200` + `{"ok":true,...}` | 정상 |
+| `404 NOT_FOUND` | 함수 slug가 `purge`가 아님 |
+| `401 INVALID_JWT_FORMAT` | Verify JWT가 켜져 있음 (또는 헤더의 키가 JWT가 아님) |
+| `500` | 함수 내부 오류 — Edge Functions → Logs 확인 |
 
 ---
 

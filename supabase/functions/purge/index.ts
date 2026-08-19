@@ -9,15 +9,20 @@
 //
 // [배포]
 //   대시보드 → Edge Functions → Deploy a new function → 이 파일 붙여넣기
+//   생성 화면의 이름 입력칸에 반드시 'purge' 를 넣을 것 — 그 값이 URL(slug)이 되고
+//   slug 는 나중에 변경할 수 없다. (표시 이름만 바꾸면 URL 은 그대로다)
 //   또는  supabase functions deploy purge
 //
+// [설정]
+//   Settings → Verify JWT 를 끈다. 그러면 크론이 헤더 없이 부를 수 있다.
+//
 // [스케줄]
-//   대시보드 → Integrations → Cron → Edge Function 선택
-//   또는 schema.sql §7 의 cron.schedule 블록
+//   schema.sql §7-b 의 cron.schedule 블록 참조.
 //
 // [보안]
 //   누가 호출하든 14일 지난 것만 지운다. 이미 아무도 못 읽는 데이터라
 //   임의 호출로 생기는 피해가 없다. 그래서 별도 시크릿을 두지 않았다.
+//   (남는 위험은 무료 호출량 낭비뿐 — 데이터 피해는 없다)
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 

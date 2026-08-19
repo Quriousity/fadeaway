@@ -305,15 +305,17 @@ grant   execute on function public.expired_attachment_paths(interval) to service
 --    대시보드 → Edge Functions → Deploy a new function → 이름 'purge'
 --    → supabase/functions/purge/index.ts 내용 붙여넣고 Deploy
 --
---  스케줄 등록은 둘 중 하나. 쉬운 쪽은 대시보드다.
+--    이름(name) 이 아니라 slug 가 URL 이 된다. slug 는 생성 후 변경 불가이므로
+--    생성 화면의 이름 입력칸에 처음부터 'purge' 를 넣을 것.
 --
---   (A) 대시보드 → Integrations → Cron → Create job
---       Type: Supabase Edge Function / Function: purge / Schedule: 매일 1회
---       ↑ URL·헤더를 알아서 채워준다. 아래 SQL 을 실행할 필요 없음.
+--  그리고 그 함수의 Settings 에서 Verify JWT 를 끈다.
+--    이 함수는 14일 지난 것만 지운다 — 이미 아무도 못 읽는 데이터라
+--    누가 호출해도 피해가 없다. 그래서 인증을 붙이지 않는다.
+--    대신 키 관리가 통째로 사라져서, 나중에 키를 교체해도 안 깨진다.
 --
---   (B) 아래 블록의 <PROJECT_REF> 와 <ANON_KEY> 를 채워 주석 해제 후 실행.
---       anon key 는 원래 공개되는 키라 여기 적어도 된다.
---       (이 함수는 14일 지난 것만 지우므로 누가 호출해도 피해가 없다)
+--  스케줄 등록: <PROJECT_REF> 를 채우고 주석 해제 후 실행.
+--  (대시보드 Integrations → Cron 으로 해도 되지만, 거기서 만든 job 은
+--   Authorization 헤더가 비어 있어 Verify JWT 가 켜져 있으면 401 이 난다)
 -- ---------------------------------------------------------------------------
 -- create extension if not exists pg_net;
 --
@@ -323,10 +325,16 @@ grant   execute on function public.expired_attachment_paths(interval) to service
 --   $cmd$
 --     select net.http_post(
 --       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/purge',
---       headers := '{"Content-Type":"application/json","Authorization":"Bearer <ANON_KEY>"}'::jsonb
+--       headers := '{"Content-Type":"application/json"}'::jsonb
 --     );
 --   $cmd$
 -- );
+--
+-- 확인:
+--   select net.http_post(url := 'https://<PROJECT_REF>.supabase.co/functions/v1/purge',
+--                        headers := '{"Content-Type":"application/json"}'::jsonb);
+--   select status_code, content from net._http_response order by id desc limit 1;
+--   → 200 {"ok":true,"cutoff":"...","filesRemoved":0,"messagesDeleted":0}
 
 
 -- ---------------------------------------------------------------------------
