@@ -39,6 +39,7 @@
   --on-scrim: #fff;
 
   --ok: #4ade80;
+  --auth-glow: #1a1520;
 }
 
 @media (prefers-color-scheme: light) {
@@ -64,6 +65,7 @@
     --shimmer-b: rgba(0, 0, 0, 0.09);
 
     --ok: #15a34a;
+    --auth-glow: #fdeef0;
   }
 }
 
@@ -89,6 +91,7 @@
   --shimmer-b: rgba(0, 0, 0, 0.09);
 
   --ok: #15a34a;
+  --auth-glow: #fdeef0;
 }
 
 /* 크롬 자동완성은 -internal-autofill-selected 로 배경/글자색을 강제로 덮는다.
@@ -852,7 +855,7 @@ button {
   display: grid;
   place-items: center;
   height: 100vh;
-  background: radial-gradient(80% 60% at 50% 0%, #1a1520 0%, var(--bg) 70%);
+  background: radial-gradient(80% 60% at 50% 0%, var(--auth-glow) 0%, var(--bg) 70%);
 }
 .auth-card {
   width: 360px;
@@ -869,6 +872,8 @@ button {
   align-items: center;
   gap: 10px;
   justify-content: center;
+  /* 부제 문단을 지웠으므로 여백을 여기서 준다 */
+  margin-bottom: 26px;
 }
 .auth-brand img {
   width: 36px;
