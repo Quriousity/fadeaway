@@ -520,6 +520,22 @@ button {
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
 }
 
+/* 아직 구현 안 된 화면임을 표시하는 배지 */
+.chip-mock {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 2px 6px;
+  line-height: 1.4;
+}
+
 /* ---------- 친구 추가 / 아이디 ---------- */
 .add-friend {
   display: flex;

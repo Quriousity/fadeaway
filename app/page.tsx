@@ -475,6 +475,7 @@ export default function Home() {
         <button className="billing-btn" onClick={() => setBillingOpen(true)}>
           <Receipt size={16} />
           <span>과금 체계</span>
+          <span className="chip-mock">목업</span>
         </button>
 
         <div className="account">
@@ -668,9 +669,13 @@ export default function Home() {
             >
               <X size={18} />
             </button>
-            <h3 className="modal-title">과금 체계</h3>
+            <h3 className="modal-title">
+              과금 체계
+              <span className="chip-mock">목업</span>
+            </h3>
             <p className="modal-sub">
-              지금은 <b>전부 무료</b>예요. 아래는 상용화 시 적용할 계획입니다.
+              아직 구현되지 않은 화면이에요. 지금은 <b>전부 무료</b>이고, 아래
+              금액은 상용화 시 적용할 <b>계획</b>일 뿐 실제로 청구되지 않습니다.
             </p>
             <ul className="price-list">
               <li>
