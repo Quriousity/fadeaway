@@ -54,10 +54,10 @@ create policy "profiles read" on public.profiles
 create policy "profiles insert own" on public.profiles
   for insert with check (id = auth.uid());
 
--- [주의] 닉네임은 한 번 정하면 못 바꾼다 (using 절의 nickname is null).
---        변경을 허용하려면 아래 정책의 "and nickname is null" 을 지울 것.
+-- 아이디는 언제든 바꿀 수 있다.
+-- (오타로 정한 아이디를 영영 못 고치는 편이, 아이디가 바뀌어 생기는 혼란보다 나쁘다)
 create policy "profiles update own" on public.profiles
-  for update using (id = auth.uid() and nickname is null)
+  for update using (id = auth.uid())
   with check (id = auth.uid());
 
 

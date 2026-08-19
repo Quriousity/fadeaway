@@ -80,6 +80,7 @@ button {
 }
 
 .modal {
+  position: relative;
   width: min(440px, 92vw);
   background: var(--panel);
   border: 1px solid var(--line);
@@ -517,6 +518,92 @@ button {
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+}
+
+/* ---------- 친구 추가 / 아이디 ---------- */
+.add-friend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 14px 10px;
+  padding: 4px 4px 4px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+}
+.add-friend:focus-within {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+.add-friend input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 0;
+  font-size: 14px;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+}
+.add-friend button {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+  border-radius: 9px;
+}
+.add-friend button:disabled {
+  opacity: 0.35;
+}
+
+.list-empty {
+  padding: 28px 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--muted);
+}
+
+.id-status {
+  min-height: 18px;
+  margin: -4px 0 8px;
+  font-size: 12px;
+}
+.id-status.ok {
+  color: #4ade80;
+}
+.id-status.bad {
+  color: var(--muted);
+}
+.auth-note {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* 상대가 통화 중일 때 헤더 전화 버튼이 뛴다 */
+.action.ringing {
+  color: var(--brand);
+  animation: ring-pulse 1s ease-in-out infinite;
+}
+@keyframes ring-pulse {
+  50% {
+    transform: scale(1.15);
+    opacity: 0.55;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--muted);
+}
+.modal-close:hover {
+  color: var(--text);
 }
 
 /* ---------- 첨부 (이미지 / 음성 / 파일) ---------- */

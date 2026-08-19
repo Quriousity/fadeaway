@@ -5,7 +5,7 @@ export type Message = {
   from: "me" | "them";
   text: string;
   time: string;
-  /** 보낸 뒤 경과 일수 (2주=14일 보관, 13일↑ 이면 fade) */
+  /** 보낸 뒤 경과 일수 (14일 보관, 13일↑ 이면 fade) */
   ageDays: number;
   /** 첨부 종류. 없으면 순수 텍스트 */
   kind?: MessageKind;
@@ -21,20 +21,16 @@ export type Message = {
   localUrl?: string | null;
 };
 
-export type Conversation = {
+/**
+ * 1:1 대화 하나.
+ * id 는 directs.id 이며 그대로 메시지 채널이자 Realtime 채널 이름이 된다.
+ */
+export type Chat = {
   id: string;
+  /** 상대 아이디 */
   name: string;
-  initials: string;
-  status: string;
+  otherId: string;
   preview: string;
   time: string;
-  /** direct = 아이디로 요청·수락한 1:1 / session = 세션ID로 참여하는 방 */
-  kind: "direct" | "session";
-  /** 시드(목업) 데이터 표시용 — 실제 대화와 구분 */
-  dummy?: boolean;
-  /** kind === "session" 일 때 공유용 세션 ID */
-  sessionId?: string;
   messages: Message[];
 };
-
-export const conversations: Conversation[] = [];

@@ -21,6 +21,9 @@
 - messages 읽기 정책의 **14일 컷오프**
 - `pg_cron` 잡 — 만료 메시지 행을 매시간 실제 삭제 (**키 불필요**)
 
+> 이미 이전 버전의 `schema.sql` 을 적용한 DB라면 `supabase/0008_id_editable.sql` 도 실행할 것.
+> (아이디 변경 허용 — 설계문서 D-012. 새로 구축하는 경우엔 이미 반영돼 있다)
+
 맨 아래 검증 쿼리 결과가 이렇게 나오면 정상:
 ```
 tables | directs, messages, profiles, sessions
@@ -166,8 +169,8 @@ select status_code, content from net._http_response order by id desc limit 1;
 ## 7. 지금 되는 것 / 안 되는 것
 
 ### 되는 것
-- 이메일·비밀번호 / Google 로그인, 닉네임
-- 다이렉트(1:1) · 세션(코드로 참여하는 방)
+- 이메일·비밀번호 / Google 로그인
+- **가입 → 아이디 설정 → 친구 아이디로 추가 → 바로 대화** (진입점 하나)
 - 텍스트, **이미지**(첨부·붙여넣기), **음성 메모**(브라우저 녹음), **파일**
 - 음성통화 / 영상통화 / 화면공유 — WebRTC mesh, 다자간 가능
 - 14일 보관 → 자동 소멸
@@ -178,8 +181,8 @@ select status_code, content from net._http_response order by id desc limit 1;
   회사망·대칭형 NAT에서는 통화 연결이 실패할 수 있다. 실패 사례가 나오면 그때 추가
 - **E2EE 아님** — 서버가 메시지 평문을 볼 수 있다. 설계문서 Q-005 미결.
   "2주 뒤 사라진다"와 "우리도 못 본다"는 다른 얘기다. 대외 문구에서 섞지 말 것
-- **닉네임은 한 번 정하면 못 바꾼다** — `schema.sql` §1의 update 정책.
-  바꾸고 싶으면 `and nickname is null` 을 지울 것
+- **세션(코드로 참여하는 임시 방)은 UI에서 뺐다** — 설계문서 D-011.
+  테이블·코드는 그대로 남아 있어 되살리는 비용은 낮다
 - **무료 티어** — Storage 1GB, DB 500MB, Realtime 동시접속 200.
   첨부 10MB 상한 × 14일 회전이라 친구 몇 명 규모에선 여유 있다
 - 설계문서 §4.4의 **파티션 DROP 방식은 미적용**. 지금은 RLS 컷오프 + 크론 DELETE.
