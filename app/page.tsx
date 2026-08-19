@@ -41,10 +41,18 @@ import {
   listMyDirects,
   type Direct,
 } from "./lib/directs";
-import { loadMessages, sendMessage, type ChatMsg } from "./lib/messages";
+import {
+  loadMessages,
+  sendMessage,
+  sendAttachmentMessage,
+  type ChatMsg,
+} from "./lib/messages";
+import { uploadAttachment, type AttachKind } from "./lib/attachments";
 import { openSignaling } from "./lib/signaling";
 import { createCallRoom, type CallRoom, type RemotePeer } from "./lib/callroom";
 import MediaTile from "./components/MediaTile";
+import Composer from "./components/Composer";
+import Attachment from "./components/Attachment";
 
 type CallKind = "통화" | "영상통화" | "화면 공유" | "원격 제어";
 
@@ -65,20 +73,49 @@ function toMessage(m: ChatMsg, selfId: string): Message {
   return {
     id: m.id,
     from: m.sender === selfId ? "me" : "them",
-    text: m.body,
+    text: m.body ?? "",
     time: created.toLocaleTimeString("ko-KR", {
       hour: "numeric",
       minute: "2-digit",
     }),
     ageDays,
+    kind: m.kind ?? "text",
+    path: m.path,
+    fileName: m.file_name,
+    mime: m.mime,
+    byteSize: m.byte_size,
+    durationMs: m.duration_ms,
   };
+}
+
+/** 브로드캐스트 payload → 화면용 Message (상대가 보낸 것) */
+function fromPayload(d: any): Message {
+  return {
+    id: d?.id ?? Math.random().toString(36).slice(2),
+    from: "them",
+    text: d?.body ?? "",
+    time: "방금",
+    ageDays: 0,
+    kind: d?.kind ?? "text",
+    path: d?.path ?? null,
+    fileName: d?.file_name ?? null,
+    mime: d?.mime ?? null,
+    byteSize: d?.byte_size ?? null,
+    durationMs: d?.duration_ms ?? null,
+  };
+}
+
+/** 사이드바 미리보기 문구 — 첨부는 텍스트가 없으니 종류로 대체 */
+function previewOf(m: Message) {
+  if (!m.kind || m.kind === "text") return m.text;
+  if (m.text) return m.text;
+  return m.kind === "image" ? "📷 사진" : m.kind === "audio" ? "🎤 음성 메모" : "📎 파일";
 }
 
 export default function Home() {
   const { user, signOut } = useAuth();
   const [chats, setChats] = useState(seed);
   const [activeId, setActiveId] = useState(seed[0]?.id ?? "");
-  const [draft, setDraft] = useState("");
   const [call, setCall] = useState<CallKind | null>(null);
   const [muted, setMuted] = useState(true); // 기본 음소거
   const [newOpen, setNewOpen] = useState(false);
@@ -190,28 +227,22 @@ export default function Home() {
       }
 
       if (s.event === "chat") {
-        const body = s.data?.body;
-        if (body) {
-          const incoming: Message = {
-            id: s.data?.id ?? Math.random().toString(36).slice(2),
-            from: "them",
-            text: body,
-            time: "방금",
-            ageDays: 0,
-          };
-          setChats((cs) =>
-            cs.map((c) =>
-              c.sessionId === activeSessionId
-                ? {
-                    ...c,
-                    messages: [...c.messages, incoming],
-                    preview: body,
-                    time: "방금",
-                  }
-                : c
-            )
-          );
-        }
+        if (!s.data) return;
+        const incoming = fromPayload(s.data);
+        const isText = !incoming.kind || incoming.kind === "text";
+        if (isText && !incoming.text) return;
+        setChats((cs) =>
+          cs.map((c) =>
+            c.sessionId === activeSessionId
+              ? {
+                  ...c,
+                  messages: [...c.messages, incoming],
+                  preview: previewOf(incoming),
+                  time: "방금",
+                }
+              : c
+          )
+        );
         return;
       }
 
@@ -523,16 +554,18 @@ export default function Home() {
     setDirectNick("");
   };
 
-  const send = () => {
-    const text = draft.trim();
-    if (!text) return;
-    setDraft("");
+  /** 채널(sessionId) 기준으로 대화 한 건만 갱신 */
+  const patchChat = (chan: string, fn: (c: Conversation) => Conversation) =>
+    setChats((cs) => cs.map((c) => (c.sessionId === chan ? fn(c) : c)));
+
+  const sendText = (text: string) => {
     const msg: Message = {
       id: Math.random().toString(36).slice(2),
       from: "me",
       text,
       time: "방금",
       ageDays: 0,
+      kind: "text",
     };
     setChats((cs) =>
       cs.map((c) =>
@@ -543,9 +576,85 @@ export default function Home() {
     );
     // 실제 채널이면 상대에게 실시간 전송 + DB 저장 (더미 대화는 로컬만)
     if (activeSessionId) {
-      sigRef.current?.send("chat", { body: text });
+      sigRef.current?.send("chat", { body: text, kind: "text" });
       sendMessage(activeSessionId, text);
     }
+  };
+
+  /**
+   * 첨부 전송 — 낙관적 표시(로컬 미리보기) → Storage 업로드 → DB 저장 → 브로드캐스트.
+   * 업로드/저장이 실패하면 임시 말풍선을 걷어내고 토스트로 알린다.
+   */
+  const sendFile = async (
+    file: Blob,
+    name: string,
+    kind: AttachKind,
+    durationMs?: number
+  ) => {
+    const chan = activeSessionId;
+    if (!chan) {
+      setToast("첨부는 실제 대화방에서만 보낼 수 있어요");
+      return;
+    }
+
+    const tempId = "up_" + Math.random().toString(36).slice(2);
+    // 파일(문서 등)은 미리보기가 의미 없어 objectURL을 만들지 않는다
+    const localUrl = kind === "file" ? null : URL.createObjectURL(file);
+
+    const temp: Message = {
+      id: tempId,
+      from: "me",
+      text: "",
+      time: "방금",
+      ageDays: 0,
+      kind,
+      path: null,
+      fileName: name,
+      mime: file.type || null,
+      byteSize: file.size,
+      durationMs: durationMs ?? null,
+      pending: true,
+      localUrl,
+    };
+    patchChat(chan, (c) => ({
+      ...c,
+      messages: [...c.messages, temp],
+      preview: previewOf(temp),
+      time: "방금",
+    }));
+
+    const drop = (why: string) => {
+      if (localUrl) URL.revokeObjectURL(localUrl);
+      patchChat(chan, (c) => ({
+        ...c,
+        messages: c.messages.filter((m) => m.id !== tempId),
+      }));
+      setToast(why);
+    };
+
+    const up = await uploadAttachment(chan, file, { name, kind, durationMs });
+    if (!up.ok) return drop(up.error);
+
+    const row = await sendAttachmentMessage(chan, up.attachment);
+    if (!row) return drop("전송 실패 — 잠시 후 다시 시도해주세요");
+
+    const saved = toMessage(row, user.id);
+    saved.localUrl = localUrl; // 방금 올린 건 서명 URL 왕복 없이 로컬 것으로 바로 보여준다
+    patchChat(chan, (c) => ({
+      ...c,
+      messages: c.messages.map((m) => (m.id === tempId ? saved : m)),
+    }));
+
+    sigRef.current?.send("chat", {
+      id: row.id,
+      body: row.body,
+      kind: row.kind,
+      path: row.path,
+      file_name: row.file_name,
+      mime: row.mime,
+      byte_size: row.byte_size,
+      duration_ms: row.duration_ms,
+    });
   };
 
   return (
@@ -742,26 +851,27 @@ export default function Home() {
             <div
               key={m.id}
               className={
-                "bubble " + m.from + (m.ageDays >= 13 ? " fading" : "")
+                "bubble " +
+                m.from +
+                (m.ageDays >= 13 ? " fading" : "") +
+                (m.kind && m.kind !== "text" ? " with-att" : "")
               }
             >
-              {m.text}
+              {m.kind && m.kind !== "text" && <Attachment msg={m} />}
+              {m.text && <span className="bubble-text">{m.text}</span>}
               <span className="meta">{m.time}</span>
             </div>
           ))}
         </div>
 
-        <div className="composer">
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder={`${active.name}에게 메시지`}
-          />
-          <button className="send" onClick={send}>
-            전송
-          </button>
-        </div>
+        <Composer
+          key={active.id}
+          placeholder={`${active.name}에게 메시지`}
+          canAttach={!!activeSessionId}
+          onSendText={sendText}
+          onSendFile={sendFile}
+          onError={setToast}
+        />
       </main>
       )}
 
