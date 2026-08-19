@@ -35,6 +35,9 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
+      // private Realtime 채널은 JWT 로 인가된다 → 토큰이 바뀌면 실시간 쪽도 갱신해야
+      // 만료 후 재구독이 인가 실패로 떨어지지 않는다.
+      supabase.realtime.setAuth(s?.access_token ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);

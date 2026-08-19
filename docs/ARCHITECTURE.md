@@ -46,9 +46,21 @@ WebRTC는 **직접 연결을 만들기 위해** 먼저 연결정보(SDP/ICE)를 
 - 추가 서버 0개, 연결 후 부하·비용 거의 0
 
 **채널 설계:**
-- 세션ID 1개 = Realtime 채널 1개 (`session:<세션ID>`)
-- `broadcast` 이벤트로 `offer` / `answer` / `ice` 메시지 전달
-- `presence`로 멤버 입퇴장 추적
+- 대화 1개 = Realtime 채널 1개 (`chat:<directs.id>`)
+- `broadcast` 이벤트로 `desc` / `ice` / `chat` / `call-*` 전달
+
+**인가 — 여기가 함정이었다:**
+
+messages 테이블의 RLS 는 **저장/조회 경로만** 막는다. 실시간 전달은 broadcast 로 흐르고,
+broadcast 채널은 **기본이 공개**다. anon key 만 있으면 누구나 임의 토픽을 구독하고
+가짜 메시지를 밀어넣을 수 있다 — 즉 저장 경로의 RLS 를 실시간 경로가 통째로 우회한다.
+
+그래서 채널을 `config: { private: true }` 로 연다. Realtime 이 접속 시 JWT 로 인가하고,
+그 판단을 `realtime.messages` 의 RLS 에 위임한다. 거기서도 `is_channel_member()` 를 써서
+**두 경로가 같은 규칙을 공유**하게 만든다. (schema.sql §7-c)
+
+`[주의]` 정책과 클라이언트의 `private: true` 는 짝이다. 한쪽만 배포하면 실시간이 끊긴다.
+저장은 별개 경로라 새로고침하면 히스토리는 그대로 보인다 — 증상이 헷갈리니 기억할 것.
 
 ## 4. 비용 / 서버 유지 모델
 

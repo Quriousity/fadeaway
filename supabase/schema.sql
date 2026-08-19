@@ -338,6 +338,41 @@ grant   execute on function public.expired_attachment_paths(interval) to service
 
 
 -- ---------------------------------------------------------------------------
+-- 7-c. Realtime 인가 (Realtime Authorization)
+--
+--  messages 테이블에 건 RLS 는 '저장/조회' 경로만 막는다.
+--  실시간 전달은 Realtime broadcast 로 흐르는데, broadcast 채널은 기본이 공개다.
+--  anon key 만 있으면 누구나 임의 토픽을 구독하고 가짜 메시지를 밀어넣을 수 있어,
+--  저장 경로에 건 RLS 를 실시간 경로가 통째로 우회한다.
+--
+--  클라이언트가 채널을 private 으로 열면(config.private = true) Realtime 이 접속 시
+--  JWT 로 인가하고, 그 판단을 realtime.messages 의 RLS 에 위임한다.
+--  여기서 is_channel_member() 를 그대로 쓰므로 두 경로가 같은 규칙을 공유한다.
+--
+--  [주의] 이 정책과 클라이언트의 private:true 는 짝이다. 한쪽만 적용하면 실시간이 끊긴다.
+--         (저장은 별개 경로라 새로고침하면 히스토리는 그대로 보인다)
+--
+--  토픽 형식: 'chat:<directs.id>' → 콜론 뒤가 채널 식별자
+-- ---------------------------------------------------------------------------
+drop policy if exists "realtime read own channels"  on realtime.messages;
+drop policy if exists "realtime write own channels" on realtime.messages;
+
+create policy "realtime read own channels" on realtime.messages
+  for select to authenticated
+  using (
+    extension in ('broadcast', 'presence')
+    and public.is_channel_member(split_part(realtime.topic(), ':', 2))
+  );
+
+create policy "realtime write own channels" on realtime.messages
+  for insert to authenticated
+  with check (
+    extension in ('broadcast', 'presence')
+    and public.is_channel_member(split_part(realtime.topic(), ':', 2))
+  );
+
+
+-- ---------------------------------------------------------------------------
 -- 8. 검증 — 아래 결과가 기대와 같은지 확인
 -- ---------------------------------------------------------------------------
 select 'tables' as check, string_agg(tablename, ', ' order by tablename) as result
@@ -346,6 +381,11 @@ union all
 select 'bucket', coalesce(
          (select id || ' / public=' || public::text || ' / limit=' || file_size_limit
           from storage.buckets where id = 'attachments'), '없음')
+union all
+select 'realtime 정책', coalesce(
+         (select string_agg(policyname, ', ' order by policyname)
+          from pg_policies where schemaname='realtime' and tablename='messages'
+            and policyname like 'realtime %'), '❌ 없음')
 union all
 select 'cron', coalesce(
          (select string_agg(jobname || ' @ ' || schedule, ' | ' order by jobname)
