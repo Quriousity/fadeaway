@@ -35,6 +35,7 @@ import { createCallRoom, type CallRoom, type RemotePeer } from "./lib/callroom";
 import MediaTile from "./components/MediaTile";
 import Composer from "./components/Composer";
 import Attachment from "./components/Attachment";
+import ThemeToggle from "./components/ThemeToggle";
 
 /** DB 메시지 → 화면용 Message */
 function toMessage(m: ChatMsg, selfId: string): Message {
@@ -499,6 +500,7 @@ export default function Home() {
               <div className="account-email">{user.email}</div>
             </div>
           </button>
+          <ThemeToggle />
           <button className="logout-btn" title="로그아웃" onClick={signOut}>
             <LogOut size={18} />
           </button>

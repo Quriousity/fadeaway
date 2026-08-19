@@ -1,13 +1,108 @@
+/* ---------------------------------------------------------------------------
+   테마 토큰
+   기본은 다크(이 앱의 원래 모습). 아래 두 블록이 라이트로 덮는다.
+     1) 시스템이 라이트이고 사용자가 명시 선택을 안 했을 때
+     2) 사용자가 라이트를 명시 선택했을 때 (html[data-theme="light"])
+   색은 여기서만 정의한다. 규칙 안에 색 리터럴을 쓰면 한쪽 테마에서 깨진다.
+--------------------------------------------------------------------------- */
 :root {
+  color-scheme: dark;
+
+  /* 브랜드 — 두 테마 공통 (채도가 높아 어느 배경에서도 성립) */
   --brand-1: #ff7a59;
   --brand-2: #ff3d71;
   --brand: #ff5a6e;
+  --on-brand: #fff;
+  --brand-soft: rgba(255, 90, 110, 0.12);
+  --brand-soft-strong: rgba(255, 90, 110, 0.25);
+
+  /* 표면 */
   --bg: #0e0e12;
   --panel: #16161d;
   --panel-2: #1d1d26;
+  --panel-3: #2a2a35;
   --line: #2a2a35;
   --text: #f3f3f5;
   --muted: #8b8b97;
+
+  /* 반투명 면 */
+  --surface-soft: rgba(255, 255, 255, 0.06);
+  --surface-soft-hover: rgba(255, 255, 255, 0.12);
+  --overlay: rgba(7, 7, 10, 0.82);
+  --shadow: rgba(0, 0, 0, 0.4);
+  --shimmer-a: rgba(255, 255, 255, 0.04);
+  --shimmer-b: rgba(255, 255, 255, 0.11);
+
+  /* 영상 위에 얹는 것들 — 영상은 어느 테마든 어두우므로 고정 */
+  --tile-bg: #000;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --on-scrim: #fff;
+
+  --ok: #4ade80;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+
+    --brand-soft: rgba(255, 90, 110, 0.14);
+    --brand-soft-strong: rgba(255, 90, 110, 0.22);
+
+    --bg: #f6f6f8;
+    --panel: #ffffff;
+    --panel-2: #f1f1f4;
+    --panel-3: #e5e5eb;
+    --line: #e3e3e9;
+    --text: #17171d;
+    --muted: #6c6c78;
+
+    --surface-soft: rgba(0, 0, 0, 0.05);
+    --surface-soft-hover: rgba(0, 0, 0, 0.09);
+    --overlay: rgba(22, 22, 28, 0.42);
+    --shadow: rgba(0, 0, 0, 0.16);
+    --shimmer-a: rgba(0, 0, 0, 0.04);
+    --shimmer-b: rgba(0, 0, 0, 0.09);
+
+    --ok: #15a34a;
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --brand-soft: rgba(255, 90, 110, 0.14);
+  --brand-soft-strong: rgba(255, 90, 110, 0.22);
+
+  --bg: #f6f6f8;
+  --panel: #ffffff;
+  --panel-2: #f1f1f4;
+  --panel-3: #e5e5eb;
+  --line: #e3e3e9;
+  --text: #17171d;
+  --muted: #6c6c78;
+
+  --surface-soft: rgba(0, 0, 0, 0.05);
+  --surface-soft-hover: rgba(0, 0, 0, 0.09);
+  --overlay: rgba(22, 22, 28, 0.42);
+  --shadow: rgba(0, 0, 0, 0.16);
+  --shimmer-a: rgba(0, 0, 0, 0.04);
+  --shimmer-b: rgba(0, 0, 0, 0.09);
+
+  --ok: #15a34a;
+}
+
+/* 크롬 자동완성은 -internal-autofill-selected 로 배경/글자색을 강제로 덮는다.
+   background 로는 못 이기고 inset box-shadow 로 칠해야 뚫린다. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--panel-2) inset;
+  box-shadow: 0 0 0 1000px var(--panel-2) inset;
+  caret-color: var(--text);
+  /* 색 복귀 트랜지션을 사실상 무한대로 늦춰 원래 색이 다시 안 나오게 한다 */
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 * {
@@ -64,20 +159,6 @@ button {
   letter-spacing: -0.3px;
   flex: 1;
 }
-.new-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  font-size: 22px;
-  line-height: 1;
-  color: var(--brand);
-  background: none;
-  display: grid;
-  place-items: center;
-}
-.new-btn:hover {
-  background: var(--panel-2);
-}
 
 .modal {
   position: relative;
@@ -89,19 +170,6 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-.modal-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: left;
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
 }
 .modal-btn:hover:not(.disabled) {
   border-color: var(--brand);
@@ -115,66 +183,15 @@ button {
   opacity: 0.55;
   cursor: default;
 }
-.mb-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-}
-.mb-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-.mb-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.mb-desc {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-}
 .modal-btn.disabled:hover .mb-desc,
 .modal-btn .mb-desc {
   color: var(--muted);
-}
-/* dummy chip inside modal title — no auto margin here */
-.mb-title .chip-dummy {
-  margin-right: 0;
-}
-
-/* join by session id */
-.join-row {
-  display: flex;
-  gap: 8px;
-}
-.join-input {
-  flex: 1;
-  min-width: 0;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 13px 14px;
-  color: var(--text);
-  font-size: 14px;
-  outline: none;
-}
-.join-input:focus {
-  border-color: var(--brand);
 }
 .join-btn {
   flex-shrink: 0;
   padding: 0 18px;
   font-weight: 600;
-  color: #fff;
+  color: var(--on-brand);
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
   border-radius: 12px;
 }
@@ -248,11 +265,6 @@ button {
   color: var(--muted);
   margin-left: 2px;
 }
-.modal-foot {
-  margin-top: 14px;
-  font-size: 11px;
-  color: var(--muted);
-}
 
 .retention {
   margin: 0 14px 12px;
@@ -267,45 +279,10 @@ button {
   color: var(--brand);
 }
 
-.search {
-  margin: 0 14px 12px;
-}
-.search input {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  outline: none;
-}
-
 .list {
   overflow-y: auto;
   flex: 1;
   padding: 0 8px 8px;
-}
-
-.group {
-  margin-bottom: 6px;
-}
-.group-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 10px 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.group-desc {
-  padding: 0 10px 8px;
-  font-size: 11px;
-  line-height: 1.55;
-  color: var(--muted);
 }
 
 .avatar.session {
@@ -339,7 +316,7 @@ button {
   place-items: center;
   font-weight: 600;
   font-size: 15px;
-  color: #fff;
+  color: var(--on-brand);
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
 }
 
@@ -355,20 +332,6 @@ button {
 .row-name {
   font-weight: 600;
   font-size: 14px;
-}
-.chip-dummy {
-  margin-right: auto;
-  align-self: center;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 1px 5px;
-  line-height: 1.4;
 }
 .row-time {
   font-size: 11px;
@@ -472,7 +435,7 @@ button {
 .bubble.me {
   align-self: flex-end;
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-  color: #fff;
+  color: var(--on-brand);
   border-bottom-right-radius: 5px;
 }
 .bubble.them {
@@ -516,7 +479,7 @@ button {
   padding: 0 20px;
   border-radius: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--on-brand);
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
 }
 
@@ -566,7 +529,7 @@ button {
   padding: 7px 14px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--on-brand);
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
   border-radius: 9px;
 }
@@ -588,7 +551,7 @@ button {
   font-size: 12px;
 }
 .id-status.ok {
-  color: #4ade80;
+  color: var(--ok);
 }
 .id-status.bad {
   color: var(--muted);
@@ -644,7 +607,7 @@ button {
   opacity: 0.35;
 }
 .attach-btn.recording {
-  color: #fff;
+  color: var(--on-brand);
   background: var(--brand);
   border-color: var(--brand);
 }
@@ -721,8 +684,8 @@ button {
   font-size: 10px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  background: var(--scrim);
+  color: var(--on-scrim);
 }
 .att-skeleton {
   width: 240px;
@@ -730,9 +693,9 @@ button {
   border-radius: 12px;
   background: linear-gradient(
     100deg,
-    rgba(255, 255, 255, 0.04) 40%,
-    rgba(255, 255, 255, 0.11) 50%,
-    rgba(255, 255, 255, 0.04) 60%
+    var(--shimmer-a) 40%,
+    var(--shimmer-b) 50%,
+    var(--shimmer-a) 60%
   );
   background-size: 240% 100%;
   animation: att-shimmer 1.2s linear infinite;
@@ -769,12 +732,12 @@ button {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-soft);
   color: inherit;
   min-width: 200px;
 }
 .att-file:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--surface-soft-hover);
 }
 .att-file-main {
   flex: 1;
@@ -818,7 +781,7 @@ button {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 7, 10, 0.82);
+  background: var(--overlay);
   backdrop-filter: blur(6px);
   display: grid;
   place-items: center;
@@ -834,110 +797,15 @@ button {
   position: relative;
   overflow: hidden;
 }
-
-/* full-cover ad over the call modal */
-.ad {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  background: linear-gradient(135deg, #20202a, #14141a);
-  display: grid;
-  place-items: center;
-}
-.ad-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--text);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--line);
-}
-.ad-close:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-.ad-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-}
-.ad-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.ad-cta {
-  padding: 11px 22px;
-  border-radius: 11px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-}
-.ad-cta:hover {
-  opacity: 0.9;
-}
-.call .stage {
-  height: 320px;
-  border-radius: 16px;
-  background: radial-gradient(120% 120% at 50% 0%, #23232e, #101015);
-  display: grid;
-  place-items: center;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 22px;
-}
-.call .big-avatar {
-  width: 96px;
-  height: 96px;
-  font-size: 34px;
-}
 .call .kind {
   position: absolute;
   top: 16px;
   left: 16px;
   font-size: 12px;
   color: var(--muted);
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--surface-soft);
   padding: 6px 12px;
   border-radius: 999px;
-}
-.call .share-frame {
-  position: absolute;
-  inset: 20px;
-  border: 2px dashed var(--line);
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  font-size: 13px;
-}
-.call .self-cam {
-  position: absolute;
-  bottom: 14px;
-  right: 14px;
-  width: 110px;
-  height: 72px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #2a2a35, #16161d);
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  color: var(--muted);
-}
-.call h3 {
-  font-size: 18px;
-}
-.call .timer {
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 4px;
 }
 .call-controls {
   display: flex;
@@ -955,7 +823,7 @@ button {
   border: 1px solid var(--line);
 }
 .cc:hover {
-  background: #2a2a35;
+  background: var(--panel-3);
 }
 .cc svg {
   width: 22px;
@@ -1032,7 +900,7 @@ button {
 }
 .auth-primary {
   background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-  color: #fff;
+  color: var(--on-brand);
   font-weight: 600;
   border-radius: 11px;
   padding: 12px;
@@ -1131,6 +999,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.theme-btn,
 .logout-btn {
   color: var(--muted);
   display: grid;
@@ -1139,6 +1008,7 @@ button {
   border-radius: 8px;
   flex-shrink: 0;
 }
+.theme-btn:hover,
 .logout-btn:hover {
   color: var(--brand);
   background: var(--panel-2);
@@ -1160,76 +1030,8 @@ button {
   font-weight: 500;
   padding: 12px 18px;
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 30px var(--shadow);
   z-index: 100;
-}
-
-/* ---------- Session ID bar ---------- */
-.session-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--line);
-}
-.session-bar-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.session-bar-id {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 4px 10px;
-}
-.session-bar-copy {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--brand);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 5px 10px;
-}
-.session-bar-copy:hover {
-  border-color: var(--brand);
-}
-.session-bar-hint {
-  font-size: 12px;
-  color: var(--muted);
-  margin-left: auto;
-}
-
-/* ---------- Incoming call (수신 화면) ---------- */
-.incoming {
-  width: min(360px, 92vw);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 40px 28px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.ring-avatar {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 120px;
-  height: 120px;
-  margin-bottom: 22px;
 }
 .ring-avatar .ring {
   position: absolute;
@@ -1252,46 +1054,6 @@ button {
     opacity: 0;
   }
 }
-.ring-avatar .big-avatar {
-  width: 88px;
-  height: 88px;
-  position: relative;
-}
-.incoming-name {
-  font-size: 20px;
-  font-weight: 700;
-}
-.incoming-sub {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--muted);
-}
-.incoming-actions {
-  display: flex;
-  gap: 56px;
-  margin-top: 30px;
-}
-.ic {
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: #fff;
-}
-.ic.accept {
-  background: #2ecc71;
-  animation: accept-bounce 1.4s ease-in-out infinite;
-}
-.ic.accept:hover {
-  background: #29b765;
-}
-.ic.decline {
-  background: var(--brand-2);
-}
-.ic.decline:hover {
-  background: #e23161;
-}
 @keyframes accept-bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
@@ -1303,73 +1065,18 @@ button {
   display: inline-block;
   margin: 6px 0 20px;
 }
-.roster {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  margin: 14px 0 6px;
-}
-.part {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
 .part .avatar {
   width: 40px;
   height: 40px;
-}
-.part-name {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .me-tag {
   font-size: 10px;
   font-weight: 700;
   color: var(--brand);
-  background: rgba(255, 90, 110, 0.12);
+  background: var(--brand-soft);
   border-radius: 5px;
   padding: 1px 5px;
   margin-left: 4px;
-}
-.part-state {
-  font-size: 12px;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-.room-count {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-
-/* ---------- Action dummy badge ---------- */
-.dummy-action {
-  position: relative;
-}
-.action-dummy {
-  position: absolute;
-  top: -3px;
-  right: -5px;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0 3px;
-  line-height: 1.5;
-  pointer-events: none;
 }
 
 /* ---------- Video grid (통화방) ---------- */
@@ -1396,7 +1103,7 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #000;
+  background: var(--tile-bg);
 }
 .tile-video.hidden {
   display: none;
@@ -1421,8 +1128,8 @@ button {
   max-width: calc(100% - 16px);
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
+  color: var(--on-scrim);
+  background: var(--scrim);
   border-radius: 7px;
   padding: 3px 8px;
   white-space: nowrap;
@@ -1430,7 +1137,7 @@ button {
   text-overflow: ellipsis;
 }
 .tile-label .me-tag {
-  background: rgba(255, 90, 110, 0.25);
+  background: var(--brand-soft-strong);
 }
 
 /* ---------- Room help (? button + modal) ---------- */
@@ -1461,57 +1168,11 @@ button {
   flex-direction: column;
   gap: 8px;
 }
-.help-item {
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px 14px;
-}
-.help-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.help-name {
-  font-size: 14px;
-  font-weight: 700;
-  width: 60px;
-  flex-shrink: 0;
-}
-.help-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  flex-shrink: 0;
-}
 .help-icon.on {
   border-color: var(--brand);
 }
 .help-icon.off {
   color: var(--brand);
-}
-.help-tag {
-  font-size: 12px;
-  color: var(--muted);
-}
-.help-arrow {
-  color: var(--muted);
-  font-size: 13px;
-}
-.help-desc {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* 도움말 모달은 통화방 오버레이 위로 */
-.overlay-top {
-  z-index: 60;
 }
 
 /* ---------- Back button (mobile only) ---------- */
@@ -1571,112 +1232,6 @@ button {
 .account-main.active {
   background: var(--panel-2);
 }
-.profile-body {
-  flex: 1;
-  display: grid;
-  place-items: center;
-  min-height: 0;
-}
-.profile-placeholder {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ---------- Profile form ---------- */
-.profile-body {
-  flex: 1;
-  display: block;
-  overflow-y: auto;
-  padding: 28px;
-}
-.profile-form {
-  max-width: 420px;
-}
-.profile-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.nick-row {
-  display: flex;
-  gap: 8px;
-}
-.nick-input {
-  flex: 1;
-  min-width: 0;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 12px 14px;
-  color: var(--text);
-  font-size: 15px;
-  outline: none;
-}
-.nick-input:focus {
-  border-color: var(--brand);
-}
-.nick-save {
-  flex-shrink: 0;
-  padding: 0 20px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-  border-radius: 11px;
-}
-.nick-save:disabled {
-  opacity: 0.6;
-}
-.profile-note {
-  margin-top: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--muted);
-}
-.profile-note b {
-  color: var(--text);
-}
-.nick-msg {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--brand);
-}
-
-/* nickname live status */
-.nick-status {
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.nick-status.ok {
-  color: #2ecc71;
-}
-.nick-status.bad {
-  color: var(--brand);
-}
-
-/* nickname locked (변경 불가) */
-.nick-locked {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 12px 14px;
-}
-.nick-locked-value {
-  flex: 1;
-  font-size: 16px;
-  font-weight: 700;
-}
-.nick-locked svg {
-  color: var(--muted);
-  flex-shrink: 0;
-}
 
 /* ---------- Empty chat state ---------- */
 .empty-chat {
@@ -1708,16 +1263,4 @@ button {
   display: flex;
   align-items: center;
   gap: 7px;
-}
-.rename-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  color: var(--muted);
-}
-.rename-btn:hover {
-  color: var(--brand);
-  background: var(--panel-2);
 }
